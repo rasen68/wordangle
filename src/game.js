@@ -5,18 +5,19 @@ export function normalizeWord(value) {
   return String(value ?? '').trim().toLowerCase();
 }
 
-export function evaluateGuess(guessInput, targetInput) {
+export function evaluateGuess(guessInput, targetInput, mode = 'classic') {
   const guess = normalizeWord(guessInput);
   const target = normalizeWord(targetInput);
   const result = Array.from({ length: guess.length }, () => ({ status: 'absent', arrows: { left: 0, right: 0 } }));
   const targetChars = [...target];
+  const offset = mode === 'reverse' ? target.length - guess.length : 0;
   const exactAt = Array(targetChars.length).fill(false);
 
   // Exact matches claim their target positions first.
   for (let i = 0; i < guess.length; i += 1) {
-    if (guess[i] === targetChars[i]) {
+    if (guess[i] === targetChars[offset + i]) {
       result[i].status = 'exact';
-      exactAt[i] = true;
+      exactAt[offset + i] = true;
     }
   }
 
@@ -38,11 +39,12 @@ export function evaluateGuess(guessInput, targetInput) {
   for (let i = 0; i < result.length; i += 1) {
     if (result[i].status === 'absent') continue;
     const letter = guess[i];
+    const position = offset + i;
     const left = targetChars.filter((char, index) => (
-      char === letter && index < i && !exactAt[index]
+      char === letter && index < position && !exactAt[index]
     )).length;
     const right = targetChars.filter((char, index) => (
-      char === letter && index > i && !exactAt[index]
+      char === letter && index > position && !exactAt[index]
     )).length;
     result[i].arrows = { left, right };
   }

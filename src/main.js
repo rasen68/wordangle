@@ -18,6 +18,7 @@ const state = {
   target: '',
   puzzleNumber: null,
   randomGame: false,
+  mode: 'classic',
   rows: ROW_LENGTHS.map((length) => ({ length, guess: '', submitted: false, evaluation: [] })),
   activeRow: 3,
   score: 0,
@@ -35,6 +36,7 @@ const els = {
   share: document.querySelector('#share-btn'),
   result: document.querySelector('#result-btn'),
   random: document.querySelector('#new-game-btn'),
+  reverse: document.querySelector('#reverse-toggle'),
   help: document.querySelector('#help-btn'),
   dialog: document.querySelector('#help-dialog'),
   resultDialog: document.querySelector('#result-dialog'),
@@ -59,6 +61,7 @@ async function init() {
   startGame(false);
   document.addEventListener('keydown', onKeydown);
   els.random.addEventListener('click', () => startGame(true));
+  els.reverse.addEventListener('click', toggleReverseMode);
   els.help.addEventListener('click', () => els.dialog.showModal());
   els.result.addEventListener('click', openResult);
   els.share.addEventListener('click', shareResult);
@@ -81,7 +84,25 @@ function startGame(randomGame) {
   setMessage(randomGame ? 'Random puzzle' : 'Choose any row to begin.');
 }
 
+function toggleReverseMode() {
+  if (state.rows.some((row) => row.submitted)) return;
+  state.mode = state.mode === 'classic' ? 'reverse' : 'classic';
+  renderMode();
+  renderStats();
+}
+
+function renderMode() {
+  const reverse = state.mode === 'reverse';
+  const locked = state.rows.some((row) => row.submitted);
+  els.reverse.hidden = locked;
+  els.reverse.disabled = locked;
+  els.reverse.setAttribute('aria-checked', String(reverse));
+  els.board.classList.toggle('reverse', reverse);
+  els.board.setAttribute('aria-label', reverse ? 'Reverse guess board, aligned with the end of the word' : 'Guess board, aligned with the start of the word');
+}
+
 function render() {
+  renderMode();
   renderStats();
   renderBoard();
   renderKeyboard();
@@ -89,7 +110,8 @@ function render() {
 }
 
 function renderStats() {
-  els.puzzleId.textContent = state.randomGame ? 'Random' : `#${state.puzzleNumber}`;
+  const puzzleId = state.randomGame ? 'Random' : `#${state.puzzleNumber}`;
+  els.puzzleId.textContent = `${puzzleId}${state.mode === 'reverse' ? ' · Reverse' : ''}`;
   els.score.textContent = String(state.score);
 }
 
@@ -183,7 +205,9 @@ function selectRow(index) {
 
 function onKeydown(event) {
   if (event.ctrlKey || event.metaKey || event.altKey) return;
+  if (els.dialog.open || els.resultDialog.open) return;
   const key = event.key.toLowerCase();
+  if (event.target === els.reverse && (key === 'enter' || key === ' ')) return;
   if (key === 'arrowup' || key === 'arrowdown') {
     event.preventDefault();
     moveActiveRow(key === 'arrowup' ? -1 : 1);
@@ -219,6 +243,7 @@ function moveActiveRow(delta) {
 
 function handleKey(key) {
   if (state.gameOver) return;
+  if (document.activeElement === els.reverse) els.reverse.blur();
   const row = state.rows[state.activeRow];
   if (row.submitted) return;
 
@@ -247,7 +272,7 @@ function submitActiveRow() {
     return;
   }
 
-  row.evaluation = evaluateGuess(row.guess, state.target);
+  row.evaluation = evaluateGuess(row.guess, state.target, state.mode);
   row.submitted = true;
   state.score += row.length;
   state.keyboard = mergeKeyboardStatuses(state.keyboard, row.evaluation, row.guess);
@@ -276,9 +301,8 @@ function endGame(won) {
   els.resultDialog.classList.toggle('lost', !won);
   els.resultTitle.textContent = won ? 'You got it' : 'No match';
   els.resultSummary.textContent = summary;
-  els.resultDetail.textContent = state.randomGame
-    ? 'Random puzzle'
-    : `Triangdle #${state.puzzleNumber}`;
+  const puzzleId = state.randomGame ? 'Random puzzle' : `Triangdle #${state.puzzleNumber}`;
+  els.resultDetail.textContent = `${puzzleId}${state.mode === 'reverse' ? ' · Reverse' : ''}`;
   openResult();
 }
 
@@ -291,10 +315,10 @@ function openResult() {
 function shakeRow() {
   const current = els.board.children[state.activeRow];
   current?.animate([
-    { transform: 'translateX(0)' },
-    { transform: 'translateX(-5px)' },
-    { transform: 'translateX(5px)' },
-    { transform: 'translateX(0)' },
+    { translate: '0' },
+    { translate: '-5px' },
+    { translate: '5px' },
+    { translate: '0' },
   ], { duration: 180 });
 }
 
@@ -311,7 +335,8 @@ async function shareResult() {
     .filter((row) => row.submitted)
     .map((row) => row.evaluation.map((item) => item.status === 'exact' ? '🟩' : item.status === 'present' ? '🟨' : '⬜').join(''))
     .join('\n');
-  const text = `${puzzleId}\nScore: ${score}\n\n${grid}`;
+  const modeLabel = state.mode === 'reverse' ? ' · Reverse' : '';
+  const text = `${puzzleId}${modeLabel}\nScore: ${score}\n\n${grid}`;
 
   try {
     await navigator.clipboard.writeText(text);

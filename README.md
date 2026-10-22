@@ -1,12 +1,14 @@
 # Triangdle
 
-Now featured on Drexel University's The Triangle as [Wordangle](https://www.thetriangle.org/wordangle) (credit to [Sachin Avutu](https://github.com/ssavutu))
+Now featured on Drexel University's The Triangle as [Wordangle](https://www.thetriangle.org/wordangle) (credit to [Sachin Avutu](https://github.com/ssavutu) for integration work)
 
 Like Wordle, but in a right triangle. You're guessing a 6-letter word with one left-aligned guess of each length 1-6 plus one final guess.
 
 Each length-*n* guess matches only against the first *n* letters of the real word must be a real word of length *n* (length 1 can be any letter). However, you can make the guesses in any order. Try to use the least number of *letters*, not guesses.
 
 Gray/Yellow/Green work the same as in regular Wordle, except there are triangular pointers embedded to make up for the added triangular difficulty.
+
+Before submitting your first guess in a game, you can turn on Reverse Mode to slide the rows right and align guesses with the end of the answer instead of the start. Both modes use the same daily word.
 
 ## Run
 
