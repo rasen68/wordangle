@@ -301,7 +301,7 @@ function endGame(won) {
   els.resultDialog.classList.toggle('lost', !won);
   els.resultTitle.textContent = won ? 'You got it' : 'No match';
   els.resultSummary.textContent = summary;
-  const puzzleId = state.randomGame ? 'Random puzzle' : `Triangdle #${state.puzzleNumber}`;
+  const puzzleId = state.randomGame ? 'Random puzzle' : `Wordangle #${state.puzzleNumber}`;
   els.resultDetail.textContent = `${puzzleId}${state.mode === 'reverse' ? ' · Reverse' : ''}`;
   openResult();
 }
@@ -329,7 +329,7 @@ function setMessage(text, bad = false, good = false) {
 
 async function shareResult() {
   if (!state.gameOver) return;
-  const puzzleId = state.randomGame ? 'Random game' : `Triangdle #${state.puzzleNumber}`;
+  const puzzleId = state.randomGame ? 'Random game' : `Wordangle #${state.puzzleNumber}`;
   const score = state.won ? `${state.score} letters` : 'Loss';
   const grid = state.rows
     .filter((row) => row.submitted)

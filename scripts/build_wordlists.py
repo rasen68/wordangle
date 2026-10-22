@@ -26,7 +26,7 @@ SCOWL_WORDS_RE = re.compile(
     r'(?:^|/)final/(\w+)-words\.(\d\d)$'
 )
 
-USER_AGENT = 'triangdle-wordlist-builder/1.0'
+USER_AGENT = 'wordangle-wordlist-builder/1.0'
 ALLOWED_LENGTHS = (2, 3, 4, 5, 6)
 DOWNLOAD_ATTEMPTS = 5
 

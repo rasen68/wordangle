@@ -1,6 +1,8 @@
-# Triangdle
+# Wordangle
 
-Now featured on Drexel University's The Triangle as [Wordangle](https://www.thetriangle.org/wordangle) (credit to [Sachin Avutu](https://github.com/ssavutu) for integration work)
+*(originally known as Triangdle)*
+
+Now featured on Drexel University's The Triangle [Games](https://www.thetriangle.org/wordangle) (credit to [Sachin Avutu](https://github.com/ssavutu) for integration work)
 
 Like Wordle, but in a right triangle. You're guessing a 6-letter word with one left-aligned guess of each length 1-6 plus one final guess.
 
